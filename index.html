@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posterverse - Shop Unique Posters</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Posterverse</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section id="products">
+            <!-- Products will be dynamically loaded here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Posterverse. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+
+/* styles.css */
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+header { background: #333; color: white; padding: 10px 20px; }
+nav ul { list-style: none; padding: 0; display: flex; }
+nav ul li { margin-right: 15px; }
+nav ul li a { color: white; text-decoration: none; }
+
+/* script.js */
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("products.php")
+        .then(response => response.json())
+        .then(data => {
+            const productsContainer = document.getElementById("products");
+            data.forEach(product => {
+                const productElement = document.createElement("div");
+                productElement.innerHTML = `<h2>${product.name}</h2><p>${product.price}</p>`;
+                productsContainer.appendChild(productElement);
+            });
+        });
+});
+
+<?php
+// db.php
+$host = 'localhost';
+$user = 'root';
+$pass = '';
+$dbname = 'posterverse';
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+
+// products.php
+header("Content-Type: application/json");
+$result = $conn->query("SELECT * FROM products");
+$products = [];
+while ($row = $result->fetch_assoc()) {
+    $products[] = $row;
+}
+echo json_encode($products);
+?>
