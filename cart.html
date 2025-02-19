@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <h1>Cart</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        </nav>
+    </header>
+
+    <div id="cart-items"></div>
+    <button onclick="checkout()">Proceed to Checkout</button>
+
+    <script>
+    function loadCart() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let output = "<h2>Your Cart</h2>";
+
+        if (cart.length === 0) {
+            output += "<p>Your cart is empty.</p>";
+        } else {
+            cart.forEach(item => {
+                output += `<p>Product ID: ${item.id} - Quantity: ${item.quantity}</p>`;
+            });
+        }
+
+        document.getElementById("cart-items").innerHTML = output;
+    }
+
+    function checkout() {
+        fetch('/routes/checkout.php', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cart: JSON.parse(localStorage.getItem("cart")) })
+        })
+        .then(response => response.json())
+        .then(data => {
+            localStorage.removeItem("cart");
+            window.location.href = `/routes/stripe-payment.php?order_id=${data.order_id}`;
+        });
+    }
+
+    loadCart();
+    </script>
+
+</body>
+</html>
